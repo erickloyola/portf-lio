@@ -1,0 +1,111 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Converter planilha em JSON para filtrar linhas em branco
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filtrar linhas em branco (linhas onde todas as células estão vazias, nulas ou indefinidas)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heurística para encontrar a linha de cabeçalho ignorando linhas com menos células preenchidas do que a próxima linha
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Cair pra trás
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Converter JSON filtrado de volta para CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Cria uma nova planilha a partir de uma matriz filtrada de matrizes
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Projetos de Erick Loiola">
+    <title>Portfólio - Portfólio de Erick Loiola</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Menu de navegação -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">Erick Loiola</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="sobre.html">Sobre Mim</a></li>
+                <li><a href="formacao.html">Formação</a></li>
+                <li><a href="portfolio.html">Portfólio</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Seção Portfólio -->
+    <section class="portfolio">
+        <h1>Meus Projetos</h1>
+        <div class="project-grid">
+            <div class="project-card">
+                <i class="fas fa-calculator project-icon"></i>
+                <h3>Calculadora em JavaScript</h3>
+                <p>Calculadora web com operações básicas, estilizada com CSS.</p>
+                
+            </div>
+            <div class="project-card">
+                <i class="fas fa-globe project-icon"></i>
+                <h3>Site Estático</h3>
+                <p>Site sobre fundamentos de programação para disciplina de web.</p>
+                
+            </div>
+            <div class="project-card">
+                <i class="fas fa-gamepad project-icon"></i>
+                <h3>Jogo em Python</h3>
+                <p>Jogo de adivinhação de números com interface em console.</p>
+                
+            </div>
+        </div>
+    </section>
+sz
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Erick Loiola. Todos os direitos reservados.</p>
+        <div class="social-links">
+            <a href="https://github.com/erickloyola" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://linkedin.com/in/erickloyola" target="_blank"><i class="fab fa-linkedin"></i></a>
+        </div>
+    </footer>
+
+    <!-- Script para menu hamburger -->
+    <script>
+        document.querySelector('.hamburger').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
